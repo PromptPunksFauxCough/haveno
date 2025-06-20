@@ -66,7 +66,7 @@ import static java.lang.String.format;
 @Slf4j
 public class CurrencyUtil {
     public static void setup() {
-        setBaseCurrencyCode("XMR");
+        setBaseCurrencyCode(baseCurrencyCode);
     }
 
     private static final AssetRegistry assetRegistry = new AssetRegistry();
@@ -200,10 +200,10 @@ public class CurrencyUtil {
         result.add(new CryptoCurrency("BCH", "Bitcoin Cash"));
         result.add(new CryptoCurrency("ETH", "Ether"));
         result.add(new CryptoCurrency("LTC", "Litecoin"));
-        result.add(new CryptoCurrency("DAI-ERC20", "Dai Stablecoin (ERC20)"));
-        result.add(new CryptoCurrency("USDT-ERC20", "Tether USD (ERC20)"));
-        result.add(new CryptoCurrency("USDT-TRC20", "Tether USD (TRC20)"));
-        result.add(new CryptoCurrency("USDC-ERC20", "USD Coin (ERC20)"));
+        result.add(new CryptoCurrency("DAI-ERC20", "Dai Stablecoin"));
+        result.add(new CryptoCurrency("USDT-ERC20", "Tether USD"));
+        result.add(new CryptoCurrency("USDT-TRC20", "Tether USD"));
+        result.add(new CryptoCurrency("USDC-ERC20", "USD Coin"));
         result.sort(TradeCurrency::compareTo);
         return result;
     }
@@ -405,6 +405,13 @@ public class CurrencyUtil {
             String xmrOrRemovedAsset = "XMR".equals(currencyCode) ? "Monero" :
                 removedCryptoCurrency.isPresent() ? removedCryptoCurrency.get().getName() : Res.get("shared.na");
             return getCryptoCurrency(currencyCode).map(TradeCurrency::getName).orElse(xmrOrRemovedAsset);
+        }
+        if (isTraditionalNonFiatCurrency(currencyCode)) {
+            return getTraditionalNonFiatCurrencies().stream()
+                    .filter(currency -> currency.getCode().equals(currencyCode))
+                    .findAny()
+                    .map(TradeCurrency::getName)
+                    .orElse(currencyCode);
         }
         try {
             return Currency.getInstance(currencyCode).getDisplayName();
